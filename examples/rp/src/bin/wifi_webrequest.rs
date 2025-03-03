@@ -20,6 +20,16 @@ use embassy_rp::gpio::{Level, Output};
 use embassy_rp::peripherals::{DMA_CH0, PIO0};
 use embassy_rp::pio::{InterruptHandler, Pio};
 use embassy_time::{Duration, Timer};
+
+
+
+use embassy_rp::peripherals::USB;
+use embassy_rp::usb::{Driver, Instance, InterruptHandler as OtherInterruptHandler};
+use embassy_usb::class::cdc_acm::{CdcAcmClass, State};
+use embassy_usb::driver::EndpointError;
+use embassy_usb::UsbDevice;
+
+
 use rand::RngCore;
 use reqwless::client::{HttpClient, TlsConfig, TlsVerify};
 use reqwless::request::Method;
@@ -31,8 +41,10 @@ bind_interrupts!(struct Irqs {
     PIO0_IRQ_0 => InterruptHandler<PIO0>;
 });
 
-const WIFI_NETWORK: &str = "ssid"; // change to your network SSID
-const WIFI_PASSWORD: &str = "pwd"; // change to your network password
+
+
+const WIFI_NETWORK: &str = "BEZDRAT31"; // change to your network SSID
+const WIFI_PASSWORD: &str = "SkakalPesPresZito18"; // change to your network password
 
 #[embassy_executor::task]
 async fn cyw43_task(runner: cyw43::Runner<'static, Output<'static>, PioSpi<'static, PIO0, 0, DMA_CH0>>) -> ! {
@@ -50,6 +62,21 @@ async fn main(spawner: Spawner) {
 
     let p = embassy_rp::init(Default::default());
     let mut rng = RoscRng;
+
+    let driver = Driver::new(p.USB, Irqs);
+
+        // Initialize the peripherals
+        // let p = Peripherals::take().unwrap();
+
+        // // Initialize USB
+        // let usb_bus = UsbBusAllocator::new(UsbBus::new(p.USB));
+        // let mut serial = SerialPort::new(&usb_bus);
+        // let mut usb_dev = UsbDeviceBuilder::new(&usb_bus)
+        //     .manufacturer("My Manufacturer")
+        //     .product("My Product")
+        //     .serial_number("123456")
+        //     .device_class(0x02) // CDC class
+        //     .build();
 
     let fw = include_bytes!("../../../../cyw43-firmware/43439A0.bin");
     let clm = include_bytes!("../../../../cyw43-firmware/43439A0_clm.bin");
