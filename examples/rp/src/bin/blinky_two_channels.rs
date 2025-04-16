@@ -11,7 +11,7 @@ use embassy_rp::gpio;
 use embassy_sync::blocking_mutex::raw::ThreadModeRawMutex;
 use embassy_sync::channel::{Channel, Sender};
 use embassy_time::{Duration, Ticker};
-use gpio::{AnyPin, Level, Output};
+use gpio::{Level, Output};
 use {defmt_rtt as _, panic_probe as _};
 
 enum LedState {
@@ -22,7 +22,11 @@ static CHANNEL: Channel<ThreadModeRawMutex, LedState, 64> = Channel::new();
 #[embassy_executor::main]
 async fn main(spawner: Spawner) {
     let p = embassy_rp::init(Default::default());
+<<<<<<< HEAD
     let mut led = Output::new(AnyPin::from(p.PIN_1), Level::High);
+=======
+    let mut led = Output::new(p.PIN_25, Level::High);
+>>>>>>> refs/remotes/origin/main
 
     let dt = 100 * 1_000_000;
     let k = 1.003;

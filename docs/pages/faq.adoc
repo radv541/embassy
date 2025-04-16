@@ -4,7 +4,7 @@ These are a list of unsorted, commonly asked questions and answers.
 
 Please feel free to add items to link:https://github.com/embassy-rs/embassy/edit/main/docs/pages/faq.adoc[this page], especially if someone in the chat answered a question for you!
 
-== How to deploy to RP2040 without a debugging probe.
+== How to deploy to RP2040 or RP235x without a debugging probe.
 
 Install link:https://github.com/JoNil/elf2uf2-rs[elf2uf2-rs] for converting the generated elf binary into a uf2 file.
 
@@ -168,29 +168,6 @@ Note that the git revision should match any other embassy patches or git depende
     ** disable `executor-thread`
     ** make `main` spawn everything, then enable link:https://docs.rs/cortex-m/latest/cortex_m/peripheral/struct.SCB.html#method.set_sleeponexit[SCB.SLEEPONEXIT] and `loop { cortex_m::asm::wfi() }`
     ** *Note:*  If you need 2 priority levels, using 2 interrupt executors is better than 1 thread executor + 1 interrupt executor.
-
-== How do I set up the task arenas on stable?
-
-When you aren't using the `nightly` feature of `embassy-executor`, the executor uses a bump allocator, which may require configuration.
-
-Something like this error will occur at **compile time** if the task arena is *too large* for the target's RAM:
-
-[source,plain]
-----
-rust-lld: error: section '.bss' will not fit in region 'RAM': overflowed by _ bytes
-rust-lld: error: section '.uninit' will not fit in region 'RAM': overflowed by _ bytes
-----
-
-And this message will appear at **runtime** if the task arena is *too small* for the tasks running:
-
-[source,plain]
-----
-ERROR panicked at 'embassy-executor: task arena is full. You must increase the arena size, see the documentation for details: https://docs.embassy.dev/embassy-executor/'
-----
-
-NOTE: If all tasks are spawned at startup, this panic will occur immediately.
-
-Check out link:https://docs.embassy.dev/embassy-executor/git/cortex-m/index.html#task-arena[Task Arena Documentation] for more details.
 
 == Can I use manual ISRs alongside Embassy?
 
