@@ -21,7 +21,7 @@ use embassy_rp::peripherals::{DMA_CH0, PIO0};
 use embassy_rp::pio::{InterruptHandler, Pio};
 use embassy_time::{Duration, Timer};
 use rand::RngCore;
-use reqwless::client::{HttpClient, TlsConfig, TlsVerify};
+use reqwless::client::{HttpClient, TlsConfig, TlsVerify, };
 use reqwless::request::Method;
 use serde::Deserialize;
 use static_cell::StaticCell;
@@ -85,7 +85,7 @@ async fn main(spawner: Spawner) {
         .await;
 
     let config = Config::dhcpv4(Default::default());
-       // Use static IP configuration instead of DHCP
+    // Use static IP configuration instead of DHCP
     //let config = embassy_net::Config::ipv4_static(embassy_net::StaticConfigV4 {
     //    address: Ipv4Cidr::new(Ipv4Address::new(192, 168, 69, 2), 24),
     //    dns_servers: Vec::new(),
@@ -141,9 +141,12 @@ async fn main(spawner: Spawner) {
         let tcp_client = TcpClient::new(stack, &client_state);
         let dns_client = DnsSocket::new(stack);
         let tls_config = TlsConfig::new(seed, &mut tls_read_buffer, &mut tls_write_buffer, TlsVerify::None);
+        let cert_pem = fs::read("cert.pem")?;
+        let cert:  = reqwless::Certificate::from_pem(&cert_pem)?;
+    
 
         let mut http_client = HttpClient::new_with_tls(&tcp_client, &dns_client, tls_config);
-        let url = "https://www.timeapi.io/api/time/current/zone?timeZone=Europe%2FPrague";//
+        let url = "https://jsonplaceholder.typicode.com/posts/1";//"https://www.timeapi.io/api/time/current/zone?timeZone=Europe%2FPrague";//
         //"http://no-tls.jsonip.com";// 
         //"https://worldtimeapi.org/api/timezone/Europe/Berlin";
         // for non-TLS requests, use this instead:

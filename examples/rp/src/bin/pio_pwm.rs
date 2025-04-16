@@ -25,7 +25,7 @@ async fn main(_spawner: Spawner) {
 
     // Note that PIN_25 is the led pin on the Pico
     let prg = PioPwmProgram::new(&mut common);
-    let mut pwm_pio = PioPwm::new(&mut common, sm0, p.PIN_25, &prg);
+    let mut pwm_pio = PioPwm::new(&mut common, sm0, p.PIN_1, &prg);// p.PIN_25,
     pwm_pio.set_period(Duration::from_micros(REFRESH_INTERVAL));
     pwm_pio.start();
 
@@ -33,6 +33,6 @@ async fn main(_spawner: Spawner) {
     loop {
         duration = (duration + 1) % 1000;
         pwm_pio.write(Duration::from_micros(duration));
-        Timer::after_millis(1).await;
+        Timer::after_millis(10).await;
     }
 }

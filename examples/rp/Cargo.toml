@@ -26,6 +26,7 @@ fixed-macro = "1.2"
 
 # for web request example
 reqwless = { version = "0.13.0", features = ["defmt"] }
+#rustls = "0.20"
 serde = { version = "1.0.203", default-features = false, features = ["derive"] }
 serde-json-core = "0.6.0"
 
@@ -62,6 +63,8 @@ embedded-sdmmc = "0.7.0"
 
 usb-device = { version = "0.2"}  # Ensure you have the correct features
 usbd-serial = "0.2"  # Check for the latest version
+itoa = "1.0.2"
+
 
 
 [profile.release]

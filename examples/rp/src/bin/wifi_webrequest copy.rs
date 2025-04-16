@@ -20,6 +20,16 @@ use embassy_rp::gpio::{Level, Output};
 use embassy_rp::peripherals::{DMA_CH0, PIO0};
 use embassy_rp::pio::{InterruptHandler, Pio};
 use embassy_time::{Duration, Timer};
+
+
+
+use embassy_rp::peripherals::USB;
+use embassy_rp::usb::{Driver, Instance, InterruptHandler as OtherInterruptHandler};
+use embassy_usb::class::cdc_acm::{CdcAcmClass, State};
+use embassy_usb::driver::EndpointError;
+use embassy_usb::UsbDevice;
+
+
 use rand::RngCore;
 use reqwless::client::{HttpClient, TlsConfig, TlsVerify};
 use reqwless::request::Method;
@@ -30,6 +40,8 @@ use {defmt_rtt as _, panic_probe as _, serde_json_core};
 bind_interrupts!(struct Irqs {
     PIO0_IRQ_0 => InterruptHandler<PIO0>;
 });
+
+
 
 const WIFI_NETWORK: &str = "BEZDRAT31"; // change to your network SSID
 const WIFI_PASSWORD: &str = "SkakalPesPresZito18"; // change to your network password
@@ -50,6 +62,21 @@ async fn main(spawner: Spawner) {
 
     let p = embassy_rp::init(Default::default());
     let mut rng = RoscRng;
+
+    let driver = Driver::new(p.USB, Irqs);
+
+        // Initialize the peripherals
+        // let p = Peripherals::take().unwrap();
+
+        // // Initialize USB
+        // let usb_bus = UsbBusAllocator::new(UsbBus::new(p.USB));
+        // let mut serial = SerialPort::new(&usb_bus);
+        // let mut usb_dev = UsbDeviceBuilder::new(&usb_bus)
+        //     .manufacturer("My Manufacturer")
+        //     .product("My Product")
+        //     .serial_number("123456")
+        //     .device_class(0x02) // CDC class
+        //     .build();
 
     let fw = include_bytes!("../../../../cyw43-firmware/43439A0.bin");
     let clm = include_bytes!("../../../../cyw43-firmware/43439A0_clm.bin");
@@ -85,7 +112,7 @@ async fn main(spawner: Spawner) {
         .await;
 
     let config = Config::dhcpv4(Default::default());
-       // Use static IP configuration instead of DHCP
+    // Use static IP configuration instead of DHCP
     //let config = embassy_net::Config::ipv4_static(embassy_net::StaticConfigV4 {
     //    address: Ipv4Cidr::new(Ipv4Address::new(192, 168, 69, 2), 24),
     //    dns_servers: Vec::new(),
@@ -137,15 +164,13 @@ async fn main(spawner: Spawner) {
         let mut tls_read_buffer = [0; 16640];
         let mut tls_write_buffer = [0; 16640];
 
-        let client_state = TcpClientState::<1, 4096, 4096>::new();
+        let client_state = TcpClientState::<1, 1024, 1024>::new();
         let tcp_client = TcpClient::new(stack, &client_state);
         let dns_client = DnsSocket::new(stack);
         let tls_config = TlsConfig::new(seed, &mut tls_read_buffer, &mut tls_write_buffer, TlsVerify::None);
 
         let mut http_client = HttpClient::new_with_tls(&tcp_client, &dns_client, tls_config);
-        let url = "https://www.timeapi.io/api/time/current/zone?timeZone=Europe%2FPrague";//
-        //"http://no-tls.jsonip.com";// 
-        //"https://worldtimeapi.org/api/timezone/Europe/Berlin";
+        let url = "https://worldtimeapi.org/api/timezone/Europe/Berlin";
         // for non-TLS requests, use this instead:
         // let mut http_client = HttpClient::new(&tcp_client, &dns_client);
         // let url = "http://worldtimeapi.org/api/timezone/Europe/Berlin";
